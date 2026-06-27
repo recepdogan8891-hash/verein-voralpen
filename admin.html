@@ -1,0 +1,808 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Verein Voralpen</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; color: #1a1a1a; }
+
+    /* ── Login ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      background: white;
+      border-radius: 12px;
+      padding: 48px 40px;
+      width: 380px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+    .login-card h1 { font-size: 1.4rem; font-weight: 800; color: #1a3c5e; margin-bottom: 8px; }
+    .login-card p { color: #666; font-size: 0.9rem; margin-bottom: 28px; }
+
+    /* ── Admin panel ── */
+    #admin-screen { display: none; }
+    .topbar {
+      background: #1a3c5e;
+      color: white;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; }
+    .topbar button {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .topbar button:hover { background: rgba(255,255,255,0.25); }
+
+    .admin-body {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 10px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .panel h2 { font-size: 1.05rem; font-weight: 700; color: #1a3c5e; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 12px; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 5px; }
+    input[type="text"], input[type="password"], input[type="url"], textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus { border-color: #2a7de1; box-shadow: 0 0 0 3px rgba(42,125,225,0.1); }
+    textarea { resize: vertical; min-height: 110px; }
+
+    /* File upload area */
+    .upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f9fafb;
+    }
+    .upload-area:hover { border-color: #2a7de1; background: #eff6ff; }
+    .upload-area.has-file { border-color: #10b981; background: #ecfdf5; }
+    .upload-area input { display: none; }
+    .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-area p { font-size: 0.85rem; color: #666; }
+    .upload-area .file-name { font-size: 0.85rem; color: #10b981; font-weight: 600; margin-top: 6px; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: #2a7de1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .btn:hover { background: #1a6abf; }
+    .btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-edit { background: #eff6ff; color: #2a7de1; border: 1px solid #bfdbfe; }
+    .btn-edit:hover { background: #2a7de1; color: white; }
+    .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #dc2626; color: white; }
+
+    .alert {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+    }
+    .alert.success { background: #ecfdf5; color: #065f46; border: 1px solid #10b981; }
+    .alert.error   { background: #fef2f2; color: #991b1b; border: 1px solid #ef4444; }
+
+    /* ── Posts list ── */
+    #posts-panel { grid-column: 1 / -1; }
+    .post-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .post-item:last-child { border-bottom: none; }
+    .post-thumb {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .post-thumb-placeholder {
+      width: 80px;
+      height: 60px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .post-thumb-count {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .post-thumb-count img {
+      width: 80px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+    .post-thumb-count .img-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .post-info { flex: 1; min-width: 0; }
+    .post-info h3 { font-size: 0.95rem; font-weight: 700; color: #1a3c5e; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .post-info p { font-size: 0.82rem; color: #888; margin-bottom: 4px; }
+    .post-info .post-date { font-size: 0.78rem; color: #aaa; }
+    .post-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; }
+
+    .empty-state { text-align: center; padding: 32px; color: #aaa; font-size: 0.9rem; }
+
+    /* ── Edit modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      position: relative;
+    }
+    .modal-card h2 { font-size: 1.1rem; font-weight: 800; color: #1a3c5e; margin-bottom: 20px; }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 28px; height: 28px;
+      border: none; background: none;
+      cursor: pointer; font-size: 1.2rem;
+      color: #888; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #f1f5f9; }
+
+    /* Current images grid in modal */
+    .images-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .img-thumb-wrap {
+      position: relative;
+      width: 90px;
+      height: 70px;
+    }
+    .img-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+    .img-thumb-wrap .del-img-btn {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #dc2626;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .img-thumb-wrap .del-img-btn:hover { background: #b91c1c; }
+
+    /* Add photos upload in modal */
+    .add-photos-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1.5px dashed #d1d5db;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #666;
+      background: #f9fafb;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .add-photos-label:hover { border-color: #2a7de1; color: #2a7de1; background: #eff6ff; }
+    .add-photos-count { font-size: 0.8rem; color: #10b981; font-weight: 600; margin-top: 4px; }
+
+    @media (max-width: 680px) {
+      .admin-body { grid-template-columns: 1fr; }
+      #posts-panel { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>🏔 Admin-Bereich</h1>
+    <p>Verein Voralpen – Verwaltung</p>
+    <div class="form-group">
+      <label>Benutzername</label>
+      <input type="text" id="username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Passwort</label>
+      <input type="password" id="password" autocomplete="current-password">
+    </div>
+    <button class="btn" id="login-btn">Anmelden</button>
+    <div id="login-error" class="alert error">Falsche Zugangsdaten.</div>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="admin-screen">
+  <div class="topbar">
+    <h1>🏔 Verein Voralpen – Admin</h1>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="veranstaltungen.html" target="_blank" style="color:rgba(255,255,255,0.8); font-size:0.82rem; font-weight:600;">→ Seite ansehen</a>
+      <button id="logout-btn">Abmelden</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- 1: Vergangene Veranstaltung hinzufügen -->
+    <div class="panel">
+      <h2>🖼 Vergangene Veranstaltung hinzufügen</h2>
+      <form id="post-form" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>Titel *</label>
+          <input type="text" id="post-title" name="title" placeholder="z.B. Kreative Bastelstunde 🎨" required>
+        </div>
+        <div class="form-group">
+          <label>Datum der Veranstaltung *</label>
+          <input type="date" id="post-date" name="event_date" required>
+        </div>
+        <div class="form-group">
+          <label>Beschreibung *</label>
+          <textarea id="post-content" name="content" placeholder="Was habt ihr erlebt?" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fotos (optional, mehrere möglich)</label>
+          <div class="upload-area" id="upload-area" onclick="document.getElementById('image-input').click()">
+            <div class="upload-icon">📷</div>
+            <p>Fotos hier klicken oder ablegen</p>
+            <p style="font-size:0.75rem; color:#aaa; margin-top:4px;">JPG, PNG, WEBP – max. 15 MB pro Foto</p>
+            <div class="file-name" id="file-name"></div>
+            <input type="file" id="image-input" name="images" accept="image/*" multiple>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="submit-btn">Veröffentlichen</button>
+        <div id="post-success" class="alert success">✓ Beitrag veröffentlicht!</div>
+        <div id="post-error" class="alert error">Fehler beim Speichern.</div>
+      </form>
+    </div>
+
+    <!-- 3: Vergangene Veranstaltungen -->
+    <div class="panel" id="posts-panel">
+      <h2>📋 Vergangene Veranstaltungen</h2>
+      <div id="posts-list"><div class="empty-state">Wird geladen…</div></div>
+    </div>
+
+    <!-- 4: Ankündigungen -->
+    <div class="panel" style="grid-column: 1 / -1;">
+      <h2>📢 Ankündigungen verwalten</h2>
+      <div id="ann-list" style="margin-bottom:24px;"><div class="empty-state">Wird geladen…</div></div>
+
+      <div style="border-top:2px solid #e5e7eb; padding-top:20px;">
+        <h3 style="font-size:0.95rem; font-weight:700; color:#1a3c5e; margin-bottom:16px;">➕ Neue Ankündigung</h3>
+        <form id="ann-form" enctype="multipart/form-data">
+          <div class="form-group" style="display:flex; gap:16px; margin-bottom:20px;">
+            <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="type" value="event" id="ann-type-event" checked style="width:auto;"> Veranstaltung
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer;">
+              <input type="radio" name="type" value="post" id="ann-type-post" style="width:auto;"> Beitrag
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>Titel *</label>
+            <input type="text" id="ann-title" name="title" placeholder="Titel" required>
+          </div>
+
+          <div id="ann-event-fields">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div class="form-group">
+                <label>Datum</label>
+                <input type="text" id="ann-datum" name="date_text" placeholder="z.B. 15. Juni">
+              </div>
+              <div class="form-group">
+                <label>Uhrzeit</label>
+                <input type="text" id="ann-uhrzeit" name="time_text" placeholder="z.B. 17:00 Uhr">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Ort</label>
+              <input type="text" id="ann-ort" name="location" placeholder="Ort">
+            </div>
+            <div class="form-group">
+              <label>Google Formular Link</label>
+              <input type="url" id="ann-formlink" name="form_url" placeholder="https://docs.google.com/forms/…">
+            </div>
+            <div class="form-group">
+              <label>Online-Meeting Link (Zoom / Google Meet / Teams)</label>
+              <input type="url" id="ann-online-link" name="online_link" placeholder="https://zoom.us/j/… oder meet.google.com/…">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Beschreibung / Text *</label>
+            <textarea id="ann-content" name="content" placeholder="Text…" style="min-height:90px;" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Foto (optional)</label>
+            <div class="upload-area" style="padding:16px;" onclick="document.getElementById('ann-image-input').click()">
+              <div class="upload-icon" style="font-size:1.4rem;">📷</div>
+              <p style="font-size:0.82rem;">Klicken zum Hochladen</p>
+              <div class="file-name" id="ann-file-name" style="font-size:0.8rem;"></div>
+              <input type="file" id="ann-image-input" name="image" accept="image/*" style="display:none;">
+            </div>
+          </div>
+
+          <button type="submit" class="btn" id="ann-submit-btn" style="max-width:200px;">Veröffentlichen</button>
+          <div id="ann-success" class="alert success">✓ Veröffentlicht!</div>
+          <div id="ann-error" class="alert error">Fehler beim Speichern.</div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeEditModal()">×</button>
+    <h2>✏️ Beitrag bearbeiten</h2>
+    <input type="hidden" id="edit-post-id">
+
+    <div class="form-group">
+      <label>Titel *</label>
+      <input type="text" id="edit-title" placeholder="Titel">
+    </div>
+
+    <div class="form-group">
+      <label id="edit-content-label">Beschreibung *</label>
+      <textarea id="edit-content" style="min-height:120px;" placeholder="Beschreibung"></textarea>
+    </div>
+    <div class="form-group" id="edit-date-group">
+      <label>Datum der Veranstaltung *</label>
+      <input type="date" id="edit-date">
+    </div>
+
+    <div class="form-group" id="edit-images-section">
+      <label>Aktuelle Fotos</label>
+      <div class="images-grid" id="edit-images-grid">
+        <span style="font-size:0.82rem; color:#aaa;">Keine Fotos</span>
+      </div>
+    </div>
+
+    <div class="form-group" id="edit-images-section">
+      <label>Neue Fotos hinzufügen</label>
+      <label class="add-photos-label" for="edit-images-input">
+        📎 Fotos auswählen
+      </label>
+      <input type="file" id="edit-images-input" accept="image/*" multiple style="display:none;">
+      <div class="add-photos-count" id="edit-photos-count"></div>
+    </div>
+
+    <button class="btn" id="edit-save-btn" onclick="saveEdit()">Speichern</button>
+    <div id="edit-success" class="alert success">✓ Gespeichert!</div>
+    <div id="edit-error" class="alert error">Fehler beim Speichern.</div>
+  </div>
+</div>
+
+<script>
+  const loginScreen = document.getElementById('login-screen');
+  const adminScreen = document.getElementById('admin-screen');
+
+  // ── Check session on load ──
+  fetch('/api/auth').then(r => r.json()).then(d => {
+    if (d.isAdmin) showAdmin();
+  });
+
+  // ── Login ──
+  document.getElementById('login-btn').addEventListener('click', async () => {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const err = document.getElementById('login-error');
+    err.style.display = 'none';
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    if (r.ok) showAdmin();
+    else err.style.display = 'block';
+  });
+
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('login-btn').click();
+  });
+
+  // ── Logout ──
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST' });
+    location.reload();
+  });
+
+  // ── File upload preview (new post) ──
+  document.getElementById('image-input').addEventListener('change', function() {
+    const area = document.getElementById('upload-area');
+    const nameEl = document.getElementById('file-name');
+    if (this.files.length) {
+      nameEl.textContent = this.files.length === 1
+        ? this.files[0].name
+        : `${this.files.length} Fotos ausgewählt`;
+      area.classList.add('has-file');
+    } else {
+      nameEl.textContent = '';
+      area.classList.remove('has-file');
+    }
+  });
+
+  // Drag & drop (new post)
+  const uploadArea = document.getElementById('upload-area');
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = '#2a7de1'; });
+  uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '';
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length) {
+      const dt = new DataTransfer();
+      files.forEach(f => dt.items.add(f));
+      const input = document.getElementById('image-input');
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+    }
+  });
+
+  // ── New post form submit ──
+  document.getElementById('post-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const success = document.getElementById('post-success');
+    const error = document.getElementById('post-error');
+    success.style.display = 'none';
+    error.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Wird veröffentlicht…';
+
+    const formData = new FormData(e.target);
+    const r = await fetch('/api/posts', { method: 'POST', body: formData });
+
+    if (r.ok) {
+      success.style.display = 'block';
+      e.target.reset();
+      document.getElementById('file-name').textContent = '';
+      document.getElementById('upload-area').classList.remove('has-file');
+      loadPosts();
+    } else {
+      error.style.display = 'block';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Veröffentlichen';
+  });
+
+  let upcomingEditId = null;
+
+  // ── Load posts ──
+  async function loadPosts() {
+    const r = await fetch('/api/posts');
+    const posts = await r.json();
+    const list = document.getElementById('posts-list');
+    if (posts.length === 0) {
+      list.innerHTML = '<div class="empty-state">Noch keine Beiträge.</div>';
+      return;
+    }
+    list.innerHTML = posts.map(p => {
+      const images = p.images || [];
+      let thumb = '';
+      if (images.length === 0) {
+        thumb = `<div class="post-thumb-placeholder">📄</div>`;
+      } else if (images.length === 1) {
+        thumb = `<div class="post-thumb-count"><img src="${images[0].path}" alt=""></div>`;
+      } else {
+        thumb = `<div class="post-thumb-count"><img src="${images[0].path}" alt=""><span class="img-badge">+${images.length}</span></div>`;
+      }
+      return `
+        <div class="post-item" id="post-${p.id}">
+          ${thumb}
+          <div class="post-info">
+            <h3>${escHtml(p.title)}</h3>
+            <p>${escHtml(p.content.substring(0, 80))}${p.content.length > 80 ? '…' : ''}</p>
+            <span class="post-date">${formatDate(p.created_at)}</span>
+          </div>
+          <div class="post-actions">
+            <button class="btn-sm btn-edit" onclick="openEditModal(${p.id})">Bearbeiten</button>
+            <button class="btn-sm btn-danger" onclick="deletePost(${p.id})">Löschen</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function deletePost(id) {
+    if (!confirm('Beitrag wirklich löschen?')) return;
+    const r = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+    if (r.ok) loadPosts();
+  }
+
+  // ── Edit modal ──
+  let editPostData = null;
+
+  async function openEditModal(id) {
+    const r = await fetch('/api/posts');
+    const posts = await r.json();
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    editPostData = post;
+    upcomingEditId = null;
+
+    document.getElementById('edit-post-id').value = post.id;
+    document.getElementById('edit-title').value = post.title;
+    document.getElementById('edit-content').value = post.content;
+    const d = new Date(post.created_at);
+    document.getElementById('edit-date').value = d.toISOString().slice(0, 10);
+
+    document.getElementById('edit-success').style.display = 'none';
+    document.getElementById('edit-error').style.display = 'none';
+    document.getElementById('edit-images-input').value = '';
+    document.getElementById('edit-photos-count').textContent = '';
+    renderEditImages(post.images || []);
+    document.getElementById('edit-modal').classList.add('open');
+  }
+
+  function renderEditImages(images) {
+    const grid = document.getElementById('edit-images-grid');
+    if (images.length === 0) {
+      grid.innerHTML = '<span style="font-size:0.82rem; color:#aaa;">Keine Fotos</span>';
+      return;
+    }
+    grid.innerHTML = images.map(img => `
+      <div class="img-thumb-wrap" id="img-wrap-${img.id}">
+        <img src="${img.path}" alt="">
+        <button class="del-img-btn" onclick="deletePostImage(${editPostData.id}, ${img.id})">×</button>
+      </div>
+    `).join('');
+  }
+
+  async function deletePostImage(postId, imgId) {
+    const r = await fetch(`/api/posts/${postId}/images/${imgId}`, { method: 'DELETE' });
+    if (r.ok) {
+      document.getElementById(`img-wrap-${imgId}`)?.remove();
+      // Update local data
+      editPostData.images = editPostData.images.filter(i => i.id !== imgId);
+      if (editPostData.images.length === 0) {
+        document.getElementById('edit-images-grid').innerHTML = '<span style="font-size:0.82rem; color:#aaa;">Keine Fotos</span>';
+      }
+    }
+  }
+
+  document.getElementById('edit-images-input').addEventListener('change', function() {
+    const count = document.getElementById('edit-photos-count');
+    count.textContent = this.files.length
+      ? (this.files.length === 1 ? this.files[0].name : `${this.files.length} Fotos ausgewählt`)
+      : '';
+  });
+
+  async function saveEdit() {
+    const postId = parseInt(document.getElementById('edit-post-id').value);
+    const title = document.getElementById('edit-title').value.trim();
+    const content = document.getElementById('edit-content').value.trim();
+    const suc = document.getElementById('edit-success');
+    const err = document.getElementById('edit-error');
+    const btn = document.getElementById('edit-save-btn');
+    suc.style.display = 'none'; err.style.display = 'none';
+    if (!title || !content) { err.textContent = 'Titel und Beschreibung sind Pflichtfelder.'; err.style.display = 'block'; return; }
+
+    btn.disabled = true; btn.textContent = 'Wird gespeichert…';
+
+    const event_date = document.getElementById('edit-date').value;
+    const r1 = await fetch(`/api/posts/${postId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content, event_date })
+    });
+    const filesInput = document.getElementById('edit-images-input');
+    let r2ok = true;
+    if (filesInput.files.length > 0) {
+      const fd = new FormData();
+      Array.from(filesInput.files).forEach(f => fd.append('images', f));
+      const r2 = await fetch(`/api/posts/${postId}/images`, { method: 'POST', body: fd });
+      r2ok = r2.ok;
+    }
+    if (r1.ok && r2ok) {
+      suc.style.display = 'block';
+      filesInput.value = '';
+      document.getElementById('edit-photos-count').textContent = '';
+      const posts = await (await fetch('/api/posts')).json();
+      const updated = posts.find(p => p.id === postId);
+      if (updated) { editPostData = updated; renderEditImages(updated.images || []); }
+      loadPosts();
+    } else {
+      err.textContent = 'Fehler beim Speichern.';
+      err.style.display = 'block';
+    }
+    btn.disabled = false; btn.textContent = 'Speichern';
+  }
+
+  function closeEditModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+    loadPosts();
+  }
+
+  // Close modal on overlay click
+  document.getElementById('edit-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('edit-modal')) closeEditModal();
+  });
+
+  // ── Ankündigungen ──
+  document.querySelectorAll('input[name="type"]').forEach(r => r.addEventListener('change', () => {
+    const isEvent = document.getElementById('ann-type-event').checked;
+    document.getElementById('ann-event-fields').style.display = isEvent ? 'block' : 'none';
+  }));
+
+  document.getElementById('ann-image-input').addEventListener('change', function() {
+    document.getElementById('ann-file-name').textContent = this.files.length ? this.files[0].name : '';
+    this.closest('.upload-area').classList.toggle('has-file', !!this.files.length);
+  });
+
+  document.getElementById('ann-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('ann-submit-btn');
+    const suc = document.getElementById('ann-success');
+    const err = document.getElementById('ann-error');
+    suc.style.display = 'none'; err.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Wird gespeichert…';
+    const r = await fetch('/api/announcements', { method: 'POST', body: new FormData(e.target) });
+    if (r.ok) {
+      suc.style.display = 'block';
+      e.target.reset();
+      document.getElementById('ann-file-name').textContent = '';
+      document.getElementById('ann-image-input').closest('.upload-area').classList.remove('has-file');
+      document.getElementById('ann-event-fields').style.display = 'block';
+      loadAnnouncements();
+    } else { err.style.display = 'block'; }
+    btn.disabled = false; btn.textContent = 'Veröffentlichen';
+  });
+
+  async function loadAnnouncements() {
+    const r = await fetch('/api/announcements');
+    const items = await r.json();
+    const list = document.getElementById('ann-list');
+    if (!items.length) { list.innerHTML = '<div class="empty-state">Noch keine Ankündigungen.</div>'; return; }
+    list.innerHTML = items.map(item => `
+      <div class="post-item">
+        ${item.image_path
+          ? `<div class="post-thumb-count"><img src="${item.image_path}" alt=""></div>`
+          : `<div class="post-thumb-placeholder">${item.type === 'event' ? '📅' : '📝'}</div>`}
+        <div class="post-info">
+          <h3>${escHtml(item.title)}</h3>
+          <p style="font-size:0.78rem; color:#2a7de1; font-weight:600; margin-bottom:2px;">${item.type === 'event' ? 'Veranstaltung' : 'Beitrag'}</p>
+          <p>${escHtml(item.content.substring(0, 70))}${item.content.length > 70 ? '…' : ''}</p>
+          <span class="post-date">${formatDate(item.created_at)}</span>
+        </div>
+        <div class="post-actions">
+          <button class="btn-sm btn-danger" onclick="deleteAnnouncement(${item.id})">Löschen</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!confirm('Ankündigung wirklich löschen?')) return;
+    const r = await fetch(`/api/announcements/${id}`, { method: 'DELETE' });
+    if (r.ok) loadAnnouncements();
+  }
+
+  function showAdmin() {
+    loginScreen.style.display = 'none';
+    adminScreen.style.display = 'block';
+    loadAnnouncements();
+    loadPosts();
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatDate(dt) {
+    const d = new Date(dt);
+    return d.toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' }) +
+           ' · ' + d.toLocaleTimeString('de-CH', { hour:'2-digit', minute:'2-digit' });
+  }
+</script>
+</body>
+</html>

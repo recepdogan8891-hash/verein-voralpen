@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projekte – Verein Voralpen</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .projekte-bg {
+      min-height: calc(100vh - 72px);
+      padding: 56px 0 72px;
+    }
+    .projekte-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1a2a4a;
+      margin-bottom: 48px;
+    }
+    .projekte-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .img-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .img-grid img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+    .img-grid .ici-logo {
+      height: 200px;
+      object-fit: contain;
+      background: white;
+      border-radius: 6px;
+      padding: 20px;
+    }
+    .projekte-text h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a2a4a;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .projekte-text p {
+      color: #2a3a5a;
+      font-size: 0.92rem;
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .projekte-text a {
+      color: #1a2a4a;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    @media (max-width: 900px) {
+      .projekte-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav class="nav-inner">
+      <a href="index.html" class="logo">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Verein Voralpen Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="logo-text" style="display:none;">Verein Voralpen</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ankuendigungen.html">Ankündigungen</a></li>
+        <li><a href="veranstaltungen.html">Veranstaltungen</a></li>
+        <li><a href="kurse.html">Kurse</a></li>
+        <li><a href="projekte.html" class="active">Projekte</a></li>
+        <li><a href="uber-uns.html">Über Uns</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+      <button class="admin-btn" id="admin-btn" aria-label="Admin-Bereich">🔒</button>
+      <button class="hamburger" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+  <nav class="mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="ankuendigungen.html">Ankündigungen</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+    <a href="kurse.html">Kurse</a>
+    <a href="projekte.html">Projekte</a>
+    <a href="uber-uns.html">Über Uns</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+</header>
+
+<div class="projekte-bg">
+  <div class="container">
+    <h1 class="projekte-title">Unser Projekte</h1>
+
+    <div class="projekte-grid">
+
+      <!-- LEFT: Image grid -->
+      <div class="img-grid">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop/YD0p1x9ZaQUvyb79/whatsapp-image-2026-02-04-at-16.55.33-TEvAHDK9YUiir9KO.jpeg" alt="Märchenkarawane Foto 1">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop/YD0p1x9ZaQUvyb79/whatsapp-image-2026-02-04-at-16.46.38-7BrY0UwGrGmonR1c.jpeg" alt="Märchenkarawane Foto 2">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop/YD0p1x9ZaQUvyb79/whatsapp-image-2026-02-04-at-16.37.23-xbt79Cqqs6fTFuXj.jpeg" alt="Märchenkarawane Foto 3">
+        <img class="ici-logo" src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop/YD0p1x9ZaQUvyb79/guncel-0KjBRoEr9r9xxvPu.png" alt="ici. gemeinsam hier">
+      </div>
+
+      <!-- RIGHT: Text -->
+      <div class="projekte-text">
+        <h2>Märchenkarawane: Ein Sprach- und Kulturatelier für Kinder</h2>
+
+        <p>Märchenkarawane: Ein Sprach- und Kulturatelier für Kinder erhält Unterstützung von «ici. gemeinsam hier.»</p>
+
+        <p>Wir freuen uns sehr, dass «ici. gemeinsam hier.» den Verein Voralpen Integration, Kultur und Dialog dabei unterstützt, das Projekt „Märchenkarawane: Ein Sprach- und Kulturatelier für Kinder" in den Kantonen Schwyz und Glarus umzusetzen.</p>
+
+        <p>Mit der Märchenkarawane schaffen wir für Kinder von 0 bis 6 Jahren aus türkischsprachigen Familien einen geschützten und wertschätzenden Raum, in dem sie ihre Familiensprache spielerisch erleben und stärken können. Durch gemeinsames Erzählen von Märchen, Singen, kreatives Gestalten, Workshops, Ausflüge und Begegnungen werden Sprache, kulturelle Vielfalt sowie familiärer Zusammenhalt lebendig erfahrbar gemacht. Eltern werden aktiv in das Projekt einbezogen und bringen eigene Geschichten, Erfahrungen und kulturelle Werte ein. Damit leisten wir einen Beitrag zum Zusammenhalt in der Schweiz, indem Mehrsprachigkeit, gegenseitiger Respekt und das Miteinander von Familien gefördert werden.</p>
+
+        <p><strong style="color:#1a2a4a;">«ici. gemeinsam hier.» (<a href="https://www.ici-gemeinsam-hier.ch" target="_blank">www.ici-gemeinsam-hier.ch</a>)</strong></p>
+
+        <p>ist ein Programm der Stiftung Sprach- und Bildungsförderung in Zusammenarbeit mit Migros-Engagement, der Eidgenössischen Migrationskommission EKM, der Konferenz der Integrationsdelegierten (KID) und der Schweizerischen Konferenz der Fachstellen für Integration KoFI.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Logo">
+        </a>
+        <p>Kultur, Integration und Dialog</p>
+        <p style="margin-top:6px;">Veranstaltungen für Flüchtlinge in der Schweiz</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">♪</a>
+          <a href="#" class="social-btn">𝕏</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <a href="index.html">Home</a>
+        <a href="ankuendigungen.html">Ankündigungen</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+        <a href="kurse.html">Kurse</a>
+        <a href="projekte.html">Projekte</a>
+        <a href="uber-uns.html">Über Uns</a>
+        <a href="kontakt.html">Kontakt</a>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <a href="mailto:info@vereinvoralpen.ch">info@vereinvoralpen.ch</a>
+        <a href="tel:0798101948">079 810 19 48</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2024. All rights reserved</div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
+

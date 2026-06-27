@@ -1,0 +1,474 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ankündigungen – Verein Voralpen</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Event cards ── */
+    .ak-event-card {
+      background: white;
+      border: 1px solid #d1d9e6;
+      border-left: 4px solid #2a7de1;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: stretch;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.15s;
+      user-select: none;
+    }
+    .ak-event-card:hover { box-shadow: 0 4px 16px rgba(42,125,225,0.15); transform: translateY(-1px); }
+    .ak-event-card-img {
+      width: 180px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .ak-event-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ak-event-card-text { padding: 18px 22px; flex: 1; }
+    .ak-event-card-text h3 { font-size: 1rem; font-weight: 700; color: #1a3c5e; margin-bottom: 6px; }
+    .ak-event-card-meta { font-size: 0.82rem; color: #666; display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+    .ak-event-card-hint { font-size: 0.75rem; color: #2a7de1; margin-top: 8px; font-weight: 600; }
+
+    /* ── Event popup modal ── */
+    .ak-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .ak-modal-overlay.open { display: flex; }
+    .ak-modal {
+      background: white;
+      border-radius: 12px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+      position: relative;
+    }
+    .ak-modal-header {
+      background: #1a3c5e;
+      color: white;
+      padding: 20px 28px;
+      border-radius: 12px 12px 0 0;
+    }
+    .ak-modal-header h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+    .ak-modal-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: rgba(255,255,255,0.15);
+      border: none; color: white;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .ak-modal-close:hover { background: rgba(255,255,255,0.3); }
+    .ak-modal-body { padding: 24px 28px; }
+    .ak-meta-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e5e7eb; }
+    .ak-meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #555; }
+    .ak-meta-item strong { color: #1a1a1a; }
+    .ak-desc { font-size: 0.92rem; color: #555; line-height: 1.75; margin-bottom: 16px; white-space: pre-line; }
+    .ak-modal-img { margin-bottom: 18px; }
+    .ak-modal-img img { width: 100%; border-radius: 8px; max-height: 260px; object-fit: cover; }
+
+    @media (max-width: 640px) {
+      .ak-event-card-img, .ak-post-with-img .ak-post-img { width: 110px; }
+    }
+
+    /* ── Regular post cards ── */
+    .ak-post {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      overflow: hidden;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.15s;
+    }
+    .ak-post:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); transform: translateY(-1px); }
+    .ak-post-clamp { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .ak-post-hint { font-size: 0.75rem; color: #2a7de1; margin-top: 8px; font-weight: 600; display: none; }
+    .ak-post.has-overflow .ak-post-hint { display: block; }
+    .ak-post-with-img { display: flex; gap: 0; }
+    .ak-post-with-img .ak-post-img {
+      width: 180px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .ak-post-with-img .ak-post-img img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .ak-post-text { padding: 22px 24px; flex: 1; }
+    .ak-post-text h3 { font-size: 1rem; font-weight: 700; color: #1a3c5e; margin-bottom: 8px; }
+    .ak-post-text p { font-size: 0.9rem; color: #555; line-height: 1.75; }
+    .ak-post-text .ak-post-date { font-size: 0.78rem; color: #aaa; margin-top: 10px; display: block; }
+    .ak-post-no-img .ak-post-text { border-left: 4px solid #e5e7eb; }
+
+    .ak-type-label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .ak-type-event { background: #eff6ff; color: #2a7de1; }
+    .ak-type-post  { background: #f0fdf4; color: #16a34a; }
+
+    .ak-empty { text-align: center; padding: 48px 24px; color: #aaa; }
+
+    @media (max-width: 640px) {
+      .ak-post-with-img { flex-direction: column; }
+      .ak-post-with-img .ak-post-img { width: 100%; height: 200px; }
+    }
+      /* ── Lightbox ── */
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      padding: 24px;
+    }
+    .lightbox-overlay.open { display: flex; }
+    .lightbox-overlay img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      cursor: default;
+    }
+    .lightbox-close {
+      position: fixed;
+      top: 16px; right: 20px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.8;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .ak-clickable-img { cursor: zoom-in; transition: opacity 0.2s; }
+    .ak-clickable-img:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav class="nav-inner">
+      <a href="index.html" class="logo">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Verein Voralpen Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="logo-text" style="display:none;">Verein Voralpen</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ankuendigungen.html" class="active">Ankündigungen</a></li>
+        <li><a href="veranstaltungen.html">Veranstaltungen</a></li>
+        <li><a href="kurse.html">Kurse</a></li>
+        <li><a href="projekte.html">Projekte</a></li>
+        <li><a href="uber-uns.html">Über Uns</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+      <button class="admin-btn" id="admin-btn" aria-label="Admin-Bereich">🔒</button>
+      <button class="hamburger" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+  <nav class="mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="ankuendigungen.html">Ankündigungen</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+    <a href="kurse.html">Kurse</a>
+    <a href="projekte.html">Projekte</a>
+    <a href="uber-uns.html">Über Uns</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+</header>
+
+<section>
+  <div class="container">
+    <div id="ak-list" style="max-width:720px;">
+      <div style="color:var(--text-muted); padding:16px 0;">Wird geladen…</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Logo">
+        </a>
+        <p>Kultur, Integration und Dialog</p>
+        <p style="margin-top:6px;">Veranstaltungen für Flüchtlinge in der Schweiz</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">♪</a>
+          <a href="#" class="social-btn">𝕏</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <a href="index.html">Home</a>
+        <a href="veranstaltungen.html">Veranstaltungen</a>
+        <a href="ankuendigungen.html">Ankündigungen</a>
+        <a href="kurse.html">Kurse</a>
+        <a href="projekte.html">Projekte</a>
+        <a href="uber-uns.html">Über Uns</a>
+        <a href="kontakt.html">Kontakt</a>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <a href="mailto:info@vereinvoralpen.ch">info@vereinvoralpen.ch</a>
+        <a href="tel:0798101948">079 810 19 48</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2024. All rights reserved</div>
+  </div>
+</footer>
+
+<!-- Event detail modal -->
+<div class="ak-modal-overlay" id="ak-modal" onclick="closeEventModal(event)">
+  <div class="ak-modal" onclick="event.stopPropagation()">
+    <button class="ak-modal-close" onclick="closeEventModal()">×</button>
+    <div class="ak-modal-header">
+      <h2 id="ak-modal-title"></h2>
+      <div id="ak-modal-date-row" style="font-size:0.82rem;opacity:0.8;margin-top:2px;"></div>
+    </div>
+    <div class="ak-modal-body">
+      <div id="ak-modal-img-wrap" class="ak-modal-img" style="display:none;"></div>
+      <div id="ak-modal-meta" class="ak-meta-list"></div>
+      <p id="ak-modal-desc" class="ak-desc"></p>
+      <div id="ak-modal-btn"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close" onclick="closeLightbox()">×</span>
+  <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<script src="js/main.js"></script>
+<script>
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  if (!document.getElementById('ak-modal').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
+}
+
+function openEventModal(ev) {
+  document.getElementById('ak-modal-title').textContent = ev.title;
+  const dateRow = [ev.date_text, ev.time_text].filter(Boolean).join('  •  ');
+  document.getElementById('ak-modal-date-row').textContent = dateRow;
+
+  const imgWrap = document.getElementById('ak-modal-img-wrap');
+  if (ev.image_path) {
+    imgWrap.style.display = '';
+    imgWrap.innerHTML = `<img src="${ev.image_path}" alt="${escHtml(ev.title)}">`;
+    const img = imgWrap.querySelector('img');
+    makeClickable(img);
+  } else {
+    imgWrap.style.display = 'none';
+    imgWrap.innerHTML = '';
+  }
+
+  const meta = document.getElementById('ak-modal-meta');
+  const mapsUrl = ev.location ? 'https://maps.google.com/?q=' + encodeURIComponent(ev.location) : null;
+  const metaItems = [
+    ev.date_text ? `<div class="ak-meta-item">📅 <strong>${escHtml(ev.date_text)}</strong></div>` : '',
+    ev.time_text ? `<div class="ak-meta-item">🕕 <strong>${escHtml(ev.time_text)}</strong></div>` : '',
+    ev.location  ? `<div class="ak-meta-item">📍 <strong><a href="${mapsUrl}" target="_blank" style="color:inherit;text-decoration:underline;">${escHtml(ev.location)}</a></strong></div>` : ''
+  ].filter(Boolean).join('');
+  meta.innerHTML = metaItems;
+  meta.style.display = metaItems ? '' : 'none';
+
+  document.getElementById('ak-modal-desc').textContent = ev.content || '';
+  const btnWrap = document.getElementById('ak-modal-btn');
+  btnWrap.style.display = 'flex';
+  btnWrap.style.gap = '10px';
+  btnWrap.style.flexWrap = 'wrap';
+  btnWrap.innerHTML = [
+    ev.form_url && ev.form_url.trim()
+      ? `<a href="${ev.form_url}" target="_blank" class="btn btn-primary" style="font-size:0.88rem;padding:10px 22px;">Google Formular öffnen</a>`
+      : '',
+    ev.online_link && ev.online_link.trim()
+      ? `<a href="${ev.online_link}" target="_blank" class="btn btn-primary" style="font-size:0.88rem;padding:10px 22px;background:#1a56a0;">🎥 Online beitreten</a>`
+      : ''
+  ].join('');
+
+  document.getElementById('ak-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEventModal(e) {
+  if (e && e.target !== document.getElementById('ak-modal')) return;
+  document.getElementById('ak-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeLightbox();
+    closeEventModal();
+  }
+});
+
+function makeClickable(img) {
+  img.classList.add('ak-clickable-img');
+  img.addEventListener('click', () => openLightbox(img.src));
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+fetch('/api/announcements')
+  .then(r => r.json())
+  .then(items => {
+    const list = document.getElementById('ak-list');
+    if (!items.length) {
+      list.innerHTML = '<div class="ak-empty">Noch keine Ankündigungen.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    items.forEach(item => {
+      if (item.type === 'event') {
+        renderEvent(list, item);
+      } else {
+        renderPost(list, item);
+      }
+    });
+  })
+  .catch(() => {
+    document.getElementById('ak-list').innerHTML = '<div class="ak-empty">Konnte nicht geladen werden.</div>';
+  });
+
+function renderEvent(list, ev) {
+  const card = document.createElement('div');
+  card.className = 'ak-event-card';
+
+  const metaLines = [
+    ev.date_text ? `<span>Datum: <strong>${escHtml(ev.date_text)}</strong></span>` : '',
+    ev.time_text ? `<span>Uhrzeit: <strong>${escHtml(ev.time_text)}</strong></span>` : ''
+  ].filter(Boolean).join('');
+
+  const imgHtml = ev.image_path
+    ? `<div class="ak-event-card-img"><img src="${ev.image_path}" alt="${escHtml(ev.title)}"></div>`
+    : '';
+
+  card.innerHTML = `
+    ${imgHtml}
+    <div class="ak-event-card-text">
+      <span class="ak-type-label ak-type-event">Veranstaltung</span>
+      <h3>${escHtml(ev.title)}</h3>
+      ${metaLines ? `<div class="ak-event-card-meta">${metaLines}</div>` : ''}
+      <div class="ak-event-card-hint">Für Details klicken →</div>
+    </div>
+  `;
+
+  card.addEventListener('click', () => openEventModal(ev));
+  list.appendChild(card);
+}
+
+function renderPost(list, post) {
+  const date = new Date(post.created_at).toLocaleDateString('de-CH', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const wrap = document.createElement('div');
+  wrap.className = post.image_path ? 'ak-post ak-post-with-img' : 'ak-post ak-post-no-img';
+
+  const textInner = `
+    <span class="ak-type-label ak-type-post">Post</span>
+    <h3>${escHtml(post.title)}</h3>
+    <p class="ak-post-clamp">${escHtml(post.content)}</p>
+    <div class="ak-post-hint">Für Details klicken →</div>
+    <span class="ak-post-date">${date}</span>
+  `;
+
+  if (post.image_path) {
+    wrap.innerHTML = `
+      <div class="ak-post-img"><img src="${post.image_path}" alt="${escHtml(post.title)}"></div>
+      <div class="ak-post-text">${textInner}</div>
+    `;
+  } else {
+    wrap.innerHTML = `<div class="ak-post-text">${textInner}</div>`;
+  }
+
+  list.appendChild(wrap);
+
+  // Check if text is clamped (overflowing)
+  const p = wrap.querySelector('.ak-post-clamp');
+  if (p && p.scrollHeight > p.clientHeight + 2) {
+    wrap.classList.add('has-overflow');
+  }
+
+  // Click opens modal
+  wrap.addEventListener('click', (e) => {
+    // If clicking the image, open lightbox instead
+    if (e.target.tagName === 'IMG') return;
+    openPostModal(post, date);
+  });
+
+  // Make post image clickable for lightbox
+  if (post.image_path) {
+    const img = wrap.querySelector('.ak-post-img img');
+    if (img) makeClickable(img);
+  }
+}
+
+function openPostModal(post, date) {
+  document.getElementById('ak-modal-title').textContent = post.title;
+  document.getElementById('ak-modal-date-row').textContent = date;
+
+  const imgWrap = document.getElementById('ak-modal-img-wrap');
+  if (post.image_path) {
+    imgWrap.style.display = '';
+    imgWrap.innerHTML = `<img src="${post.image_path}" alt="${escHtml(post.title)}">`;
+    const img = imgWrap.querySelector('img');
+    makeClickable(img);
+  } else {
+    imgWrap.style.display = 'none';
+    imgWrap.innerHTML = '';
+  }
+
+  const meta = document.getElementById('ak-modal-meta');
+  meta.innerHTML = '';
+  meta.style.display = 'none';
+
+  document.getElementById('ak-modal-desc').textContent = post.content || '';
+  document.getElementById('ak-modal-btn').innerHTML = '';
+
+  document.getElementById('ak-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veranstaltungen – Verein Voralpen</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .events-bg {
+      padding: 64px 0;
+    }
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .event-item img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 4px;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .event-item h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a3c5e;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .event-item p {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+    .event-item .event-date {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    @media (max-width: 900px) {
+      .events-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .events-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Carousel ── */
+    .carousel {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      overflow: hidden;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.35s ease;
+    }
+    .carousel-track img {
+      flex-shrink: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.45);
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: background 0.2s;
+    }
+    .carousel-btn:hover { background: rgba(0,0,0,0.7); }
+    .carousel-btn.prev { left: 8px; }
+    .carousel-btn.next { right: 8px; }
+    .carousel-dots {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+    }
+    .carousel-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .carousel-dot.active { background: white; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav class="nav-inner">
+      <a href="index.html" class="logo">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Verein Voralpen Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="logo-text" style="display:none;">Verein Voralpen</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ankuendigungen.html">Ankündigungen</a></li>
+        <li><a href="veranstaltungen.html" class="active">Veranstaltungen</a></li>
+        <li><a href="kurse.html">Kurse</a></li>
+        <li><a href="projekte.html">Projekte</a></li>
+        <li><a href="uber-uns.html">Über Uns</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+      <button class="admin-btn" id="admin-btn" aria-label="Admin-Bereich">🔒</button>
+      <button class="hamburger" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+  <nav class="mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="ankuendigungen.html">Ankündigungen</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+    <a href="kurse.html">Kurse</a>
+    <a href="projekte.html">Projekte</a>
+    <a href="uber-uns.html">Über Uns</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+</header>
+
+<!-- VERGANGENE VERANSTALTUNGEN -->
+<div class="events-bg">
+  <div class="container">
+    <h2 style="font-size:1.6rem; font-weight:800; color:#1a3c5e; margin-bottom:40px;">Vergangene Veranstaltungen</h2>
+    <div class="events-grid" id="events-grid">
+      <div class="event-item" style="grid-column:1/-1; text-align:center; color:#666; padding:32px 0;" id="events-loading">Wird geladen…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function createCarousel(images) {
+  if (images.length === 0) return null;
+  if (images.length === 1) {
+    const img = document.createElement('img');
+    img.src = images[0];
+    img.alt = '';
+    return img;
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'carousel';
+  let current = 0;
+
+  const track = document.createElement('div');
+  track.className = 'carousel-track';
+  images.forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    track.appendChild(img);
+  });
+  wrap.appendChild(track);
+
+  const prev = document.createElement('button');
+  prev.className = 'carousel-btn prev';
+  prev.innerHTML = '&#8249;';
+  const next = document.createElement('button');
+  next.className = 'carousel-btn next';
+  next.innerHTML = '&#8250;';
+  wrap.appendChild(prev);
+  wrap.appendChild(next);
+
+  const dots = document.createElement('div');
+  dots.className = 'carousel-dots';
+  images.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    dots.appendChild(dot);
+  });
+  wrap.appendChild(dots);
+
+  function goTo(n) {
+    current = (n + images.length) % images.length;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+  prev.addEventListener('click', () => goTo(current - 1));
+  next.addEventListener('click', () => goTo(current + 1));
+
+  return wrap;
+}
+
+// Tüm postları API'den yükle
+fetch('/api/posts')
+  .then(r => r.json())
+  .then(posts => {
+    const grid = document.getElementById('events-grid');
+    const loading = document.getElementById('events-loading');
+    if (loading) loading.remove();
+
+    if (!posts.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#666; padding:32px 0;">Noch keine Veranstaltungen.</div>';
+      return;
+    }
+
+    posts.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'event-item';
+
+      const images = (p.images || []).map(i => i.path);
+      const media = createCarousel(images);
+      if (media) div.appendChild(media);
+
+      const date = new Date(p.created_at).toLocaleDateString('de-CH', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+      });
+      const h3 = document.createElement('h3');
+      h3.textContent = p.title;
+      const desc = document.createElement('p');
+      desc.textContent = p.content;
+      const span = document.createElement('span');
+      span.className = 'event-date';
+      span.textContent = date + ' · 1 min read';
+
+      div.appendChild(h3);
+      div.appendChild(desc);
+      div.appendChild(span);
+      grid.appendChild(div);
+    });
+  })
+  .catch(() => {
+    const loading = document.getElementById('events-loading');
+    if (loading) loading.textContent = 'Veranstaltungen konnten nicht geladen werden.';
+  });
+</script>
+
+<style>
+@media (max-width: 768px) {
+  section .container > div[style*="grid-template-columns"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+}
+</style>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Logo">
+        </a>
+        <p>Kultur, Integration und Dialog</p>
+        <p style="margin-top:6px;">Veranstaltungen für Flüchtlinge in der Schweiz</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">♪</a>
+          <a href="#" class="social-btn">𝕏</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <a href="index.html">Home</a>
+        <a href="veranstaltungen.html">Veranstaltungen</a>
+        <a href="ankuendigungen.html">Ankündigungen</a>
+        <a href="kurse.html">Kurse</a>
+        <a href="projekte.html">Projekte</a>
+        <a href="uber-uns.html">Über Uns</a>
+        <a href="kontakt.html">Kontakt</a>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <a href="mailto:info@vereinvoralpen.ch">info@vereinvoralpen.ch</a>
+        <a href="tel:0798101948">079 810 19 48</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2024. All rights reserved</div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
+

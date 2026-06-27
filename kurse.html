@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kurse – Verein Voralpen</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav class="nav-inner">
+      <a href="index.html" class="logo">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Verein Voralpen Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="logo-text" style="display:none;">Verein Voralpen</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="ankuendigungen.html">Ankündigungen</a></li>
+        <li><a href="veranstaltungen.html">Veranstaltungen</a></li>
+        <li><a href="kurse.html" class="active">Kurse</a></li>
+        <li><a href="projekte.html">Projekte</a></li>
+        <li><a href="uber-uns.html">Über Uns</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+      <button class="admin-btn" id="admin-btn" aria-label="Admin-Bereich">🔒</button>
+      <button class="hamburger" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </div>
+  <nav class="mobile-nav">
+    <a href="index.html">Home</a>
+    <a href="ankuendigungen.html">Ankündigungen</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+    <a href="kurse.html">Kurse</a>
+    <a href="projekte.html">Projekte</a>
+    <a href="uber-uns.html">Über Uns</a>
+    <a href="kontakt.html">Kontakt</a>
+  </nav>
+</header>
+
+<style>
+  .kurs-hero {
+    width: 100%; height: 220px; overflow: hidden;
+  }
+  .kurs-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .kurs-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 48px;
+    margin-bottom: 48px;
+  }
+  .kurs-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    border: 1px solid #e5e7eb;
+  }
+  .kurs-card img {
+    width: 100%; height: 180px; object-fit: cover; display: block;
+  }
+  .kurs-card-body { padding: 24px 28px; }
+  .kurs-card-body h3 {
+    font-size: 1.15rem; font-weight: 800;
+    color: #1a3c5e; margin-bottom: 12px;
+  }
+  .kurs-card-body p { font-size: 0.9rem; color: #555; line-height: 1.75; }
+  @media (max-width: 640px) {
+    .kurs-cards { grid-template-columns: 1fr; }
+  }
+</style>
+
+<!-- INTRO -->
+<section style="padding-bottom: 0;">
+  <div class="container">
+    <h1 class="section-title">Unsere Kurse für Kinder und Jugendliche</h1>
+    <p class="section-text">Bildungs- und Freizeitkurse, die Kinder und Jugendliche in ihrer Entwicklung unterstützen und ihre Sprachkenntnisse spielerisch fördern.</p>
+
+    <div class="kurs-cards">
+      <div class="kurs-card">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=386,fit=crop/YD0p1x9ZaQUvyb79/gemini_generated_image_2z56e12z56e12z56-X3kvIwUPFsXpU1K3.png" alt="English Kurse">
+        <div class="kurs-card-body">
+          <h3>English Kurse</h3>
+          <p>Spielerische Englischkurse für Kinder, um ihre Sprachkenntnisse frühzeitig zu fördern und ihr Selbstvertrauen zu stärken. Durch interaktive Methoden und Spiele lernen Kinder die englische Sprache auf eine motivierende Weise.</p>
+        </div>
+      </div>
+      <div class="kurs-card">
+        <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=386,fit=crop/YD0p1x9ZaQUvyb79/chris-montgomery-smgtvepind4-unsplash-mjE2MRNKo4I2EPJ7.jpg" alt="Deutsch Kurse">
+        <div class="kurs-card-body">
+          <h3>Deutsch Kurse</h3>
+          <p>Altersgerechte Deutschkurse für Kinder und Jugendliche, um ihre Sprachkenntnisse spielerisch zu fördern, schulische Leistungen zu verbessern und den Übergang in die Schule zu erleichtern.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KURSE FÜR EINWANDERER -->
+<section>
+  <div class="container">
+    <!-- CONTACT FORM -->
+    <form id="contact-form" class="form-wrap">
+      <div class="form-group">
+        <label for="k-name">Name</label>
+        <input type="text" id="k-name" name="name" placeholder="Dein Name">
+      </div>
+      <div class="form-group">
+        <label for="k-email">E-Mail *</label>
+        <input type="email" id="k-email" name="email" required placeholder="deine@email.ch">
+      </div>
+      <div class="form-group">
+        <label for="k-message">Nachricht</label>
+        <textarea id="k-message" name="message" placeholder="Deine Nachricht…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Kurs</label>
+        <div style="display:flex; gap:24px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+            <input type="checkbox" name="kurs" value="deutsch" style="width:auto;"> Deutsch
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+            <input type="checkbox" name="kurs" value="english" style="width:auto;"> English
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Absenden</button>
+      <div id="form-success" class="form-success">✓ Nachricht gesendet! Wir melden uns bald.</div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,fit=crop,q=95/YD0p1x9ZaQUvyb79/logo-AoPeB3kZ46sG8DQn.png" alt="Logo">
+        </a>
+        <p>Kultur, Integration und Dialog</p>
+        <p style="margin-top:6px;">Veranstaltungen für Flüchtlinge in der Schweiz</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">♪</a>
+          <a href="#" class="social-btn">𝕏</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <a href="index.html">Home</a>
+        <a href="ankuendigungen.html">Ankündigungen</a>
+    <a href="veranstaltungen.html">Veranstaltungen</a>
+        <a href="kurse.html">Kurse</a>
+        <a href="projekte.html">Projekte</a>
+        <a href="uber-uns.html">Über Uns</a>
+        <a href="kontakt.html">Kontakt</a>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <a href="mailto:info@vereinvoralpen.ch">info@vereinvoralpen.ch</a>
+        <a href="tel:0798101948">079 810 19 48</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2024. All rights reserved</div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
+
